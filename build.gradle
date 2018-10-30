@@ -2,7 +2,7 @@ plugins {
     id "org.jetbrains.kotlin.jvm" version "1.2.31"
 }
 
-group 'core.comparator'
+group 'core.compare'
 version '1.0'
 
 subprojects {

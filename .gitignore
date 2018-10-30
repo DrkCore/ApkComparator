@@ -28,3 +28,5 @@ hs_err_pid*
 build
 *.iml
 gen/
+out/
+comparator/src/test/

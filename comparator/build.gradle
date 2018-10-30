@@ -1,5 +1,5 @@
 apply plugin: 'application'
-mainClassName = 'core.comparator.MainKt'
+mainClassName = 'core.compare.MainKt'
 
 dependencies {
 }
