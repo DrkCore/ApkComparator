@@ -9,8 +9,9 @@ import java.util.*
 class StringsHit(val left: Apk, val right: Apk, private val valDir: String = Apk.DEFAULT_VALUES) : Weightable {
 
     val hit: Set<String>
-    val leftPct: Float
-    val rightPct: Float
+    val leftCount: Int
+    val rightCount: Int
+    val avgPct: Float
 
     init {
         val left = this.left.strings[valDir]!!
@@ -19,15 +20,22 @@ class StringsHit(val left: Apk, val right: Apk, private val valDir: String = Apk
         val set = HashSet<String>()
         set.addAll(left)
         set.retainAll(right)
+        set.remove("")
         hit = set
-        leftPct = if (left.isNotEmpty()) hit.size / left.size.toFloat() else 0F
-        rightPct = if (right.isNotEmpty()) hit.size / right.size.toFloat() else 0F;
+        leftCount = left.size
+        rightCount = right.size
+
+        avgPct = if (leftCount > 0 && rightCount > 0) {
+            ((hit.size / leftCount.toFloat()) + (hit.size / rightCount.toFloat())) / 2F
+        } else {
+            0F
+        }
     }
 
-    override fun getWeight(): Float = (leftPct + rightPct) / 2F
+    override fun getWeight(): Float = avgPct
 
     override fun toString(): String {
-        return "[${left.pkgName}(${left.strings[valDir]!!.size})  x  ${right.pkgName}(${right.strings[valDir]!!.size}) = hit.size ]"
+        return "${left.pkgName}(${leftCount})  x  ${right.pkgName}(${rightCount}) = hit.size"
     }
 
 }

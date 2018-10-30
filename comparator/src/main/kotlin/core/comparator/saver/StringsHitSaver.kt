@@ -24,10 +24,10 @@ class StringsHitSaver(override val threshold: Float = 0.8F) : ISaver<StringsHit>
         }
 
         val hit = results.subList(0, thresholdIdx)
-        results.subList(thresholdIdx, len)
 
         saveGroup(hit, book.newSheet("StringsHit-Group"))
         saveMatrix(results, book.newSheet("StringsHit-Matrix"))
+        saveHitString(hit, book.newSheet("StringsHit-Strings"))
     }
 
     companion object {
@@ -49,11 +49,11 @@ class StringsHitSaver(override val threshold: Float = 0.8F) : ISaver<StringsHit>
         }
     }
 
-    private fun saveMatrix(results: List<StringsHit>, sheet: ExcelBook.Sheet) {
+    private fun saveMatrix(hits: List<StringsHit>, sheet: ExcelBook.Sheet) {
         val apks = HashSet<String>()
-        for (result in results) {
-            apks.add(result.left.pkgName)
-            apks.add(result.right.pkgName)
+        for (hit in hits) {
+            apks.add(hit.left.pkgName)
+            apks.add(hit.right.pkgName)
         }
         val pkgs = ArrayList(apks)
 
@@ -70,13 +70,29 @@ class StringsHitSaver(override val threshold: Float = 0.8F) : ISaver<StringsHit>
             i++
         }
 
-        for (result in results) {
-            val x = pkgs.indexOf(result.left.pkgName) + 1
-            val y = pkgs.indexOf(result.right.pkgName) + 1
+        for (hit in hits) {
+            val x = pkgs.indexOf(hit.left.pkgName) + 1
+            val y = pkgs.indexOf(hit.right.pkgName) + 1
 
-            val color: Colour? = if (result.getWeight() >= threshold) sheet.nextLightColor() else null
-            sheet.add(x, y, result.getWeight().toString(), color)
-            sheet.add(y, x, result.getWeight().toString(), color)
+            val color: Colour? = if (hit.getWeight() >= threshold) sheet.nextLightColor() else null
+            sheet.add(x, y, hit.getWeight().toString(), color)
+            sheet.add(y, x, hit.getWeight().toString(), color)
+        }
+    }
+
+    private fun saveHitString(hits: List<StringsHit>, sheet: ExcelBook.Sheet) {
+        var col = -1
+        for (hit in hits) {
+            col++
+
+            val color = sheet.nextLightColor()
+            var row = 0
+            sheet.add(col, row++, "${hit.left.pkgName} [${hit.hit.size}/${hit.leftCount}]", color)
+            sheet.add(col, row++, "${hit.right.pkgName} [${hit.hit.size}/${hit.rightCount}]", color)
+
+            for (str in hit.hit) {
+                sheet.add(col, row++, str)
+            }
         }
     }
 
