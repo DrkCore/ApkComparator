@@ -1,0 +1,27 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.2.31"
+}
+
+group 'core.comparator'
+version '1.0'
+
+subprojects {
+    apply plugin: 'kotlin'
+
+    dependencies {
+        compile "org.jetbrains.kotlin:kotlin-stdlib:1.2.31"
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
+    }
+    repositories {
+        mavenCentral()
+    }
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.3'
+}
