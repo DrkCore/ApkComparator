@@ -1,10 +1,14 @@
 package core.comparator.compare
 
+import core.comparator.saver.ISaver
+
 /**
  * @author core
  * @since 17-6-21
  */
 interface Weightable {
+    val left: Apk
+    val right: Apk
     fun getWeight(): Float
 }
 
@@ -29,7 +33,7 @@ interface IComparator<T : Weightable> {
         return results
     }
 
-
     fun compare(left: Apk, right: Apk): T
 
+    val saver: ISaver<T>
 }

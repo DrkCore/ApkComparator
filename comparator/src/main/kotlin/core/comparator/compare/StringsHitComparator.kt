@@ -1,12 +1,14 @@
 package core.comparator.compare
 
+import core.comparator.saver.ISaver
+import core.comparator.saver.StringsHitSaver
 import java.util.*
 
 /**
  * @author DrkCore
  * @since 10/30/18
  */
-class StringsHit(val left: Apk, val right: Apk, private val valDir: String = Apk.DEFAULT_VALUES) : Weightable {
+class StringsHit(override val left: Apk, override val right: Apk, private val valDir: String = Apk.DEFAULT_VALUES) : Weightable {
 
     val hit: Set<String>
     val leftCount: Int
@@ -41,6 +43,9 @@ class StringsHit(val left: Apk, val right: Apk, private val valDir: String = Apk
 }
 
 class StringsHitComparator : IComparator<StringsHit> {
+
+    override val saver: ISaver<StringsHit> = StringsHitSaver()
+
     override fun compare(left: Apk, right: Apk): StringsHit {
         return StringsHit(left, right)
     }

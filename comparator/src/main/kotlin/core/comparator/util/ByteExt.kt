@@ -1,4 +1,4 @@
-package core.comparator.ext
+package core.comparator.util
 
 import java.nio.charset.Charset
 

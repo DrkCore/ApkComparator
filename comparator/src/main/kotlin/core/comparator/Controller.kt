@@ -4,7 +4,6 @@ import core.comparator.compare.Apk
 import core.comparator.compare.IComparator
 import core.comparator.compare.Weightable
 import core.comparator.saver.ExcelBook
-import core.comparator.saver.ISaver
 import java.io.File
 
 /**
@@ -18,7 +17,6 @@ class Controller {
     }
 
     val comparators = mutableListOf<IComparator<out Weightable>>()
-    val savers = mutableListOf<ISaver<out Weightable>>()
 
     fun process(files: Array<File>, outDir: File) {
         val apks = mutableListOf<Apk>()
@@ -28,11 +26,10 @@ class Controller {
 
         for (comparator in comparators) {
             val results: List<Weightable> = comparator.compareAll(apks = apks)
-            for (saver in savers) {
-                if (results.isNotEmpty() && saver.canHandle(results[0])) {
-                    saver.save(book, results as List<Nothing>)
-                    break
-                }
+            if (results.isNotEmpty()) {
+                @Suppress("UNCHECKED_CAST")
+                comparator.saver.save(book, results as List<Nothing>)
+                break
             }
         }
 

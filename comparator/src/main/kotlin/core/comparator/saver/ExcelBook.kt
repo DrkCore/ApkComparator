@@ -16,6 +16,9 @@ class ExcelBook(private val xls: File) {
     private val book = Workbook.createWorkbook(xls)
 
     fun close() {
+        if (sheets.isEmpty()) {
+            newSheet("empty")
+        }
         book.write()
         book.close()
     }

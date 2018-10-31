@@ -1,7 +1,8 @@
 package core.comparator.compare
 
 import brut.androlib.ApkDecoder
-import core.comparator.ext.md5
+import core.comparator.util.dumpDir
+import core.comparator.util.md5
 import java.io.File
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
@@ -13,22 +14,20 @@ import javax.xml.parsers.DocumentBuilderFactory
 class Apk private constructor(val apk: File, val extraDir: File) {
 
     var pkgName: String
-
-    val manifest: File = File(extraDir, "AndroidManifest.xml")
-    val resDir: File = File(extraDir, "res")
-    val strings: MutableMap<String, Set<String>>
+    val strings: Map<String, Set<String>>
+    val srcPaths: Set<String>
 
     init {
         //load pkg name
         val doc = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder().parse(manifest)
+                .newDocumentBuilder().parse(File(extraDir, "AndroidManifest.xml"))
         val nodeList = doc.getElementsByTagName("manifest")
         val node = nodeList.item(0)
         pkgName = node.attributes.getNamedItem("package").nodeValue
 
         //load res
         strings = HashMap()
-        val valDirs = resDir.listFiles { pathname -> pathname.isDirectory && pathname.name.startsWith(VALUES_PREFIX) }
+        val valDirs = File(extraDir, "res").listFiles { pathname -> pathname.isDirectory && pathname.name.startsWith(VALUES_PREFIX) }
         valDirs?.forEach {
             val xml = File(it, XML_NAME)
             if (xml.isFile) {
@@ -40,6 +39,17 @@ class Apk private constructor(val apk: File, val extraDir: File) {
                     }
                 }
                 strings[it.name] = lines
+            }
+        }
+
+        //load srcPaths
+        srcPaths = mutableSetOf()
+        for (file in extraDir.listFiles()) {
+            if (file.isDirectory && file.name.startsWith("smali")) {
+                for (dir in file.dumpDir()) {
+                    val ignoreLen = file.absolutePath.length
+                    srcPaths.add(dir.absolutePath.substring(ignoreLen, dir.absolutePath.length))
+                }
             }
         }
     }

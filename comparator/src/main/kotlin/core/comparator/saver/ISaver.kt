@@ -10,7 +10,5 @@ interface ISaver<T : Weightable> {
 
     val threshold: Float
 
-    fun canHandle(result: Any): Boolean
-
     fun save(book: ExcelBook, results: List<T>)
 }

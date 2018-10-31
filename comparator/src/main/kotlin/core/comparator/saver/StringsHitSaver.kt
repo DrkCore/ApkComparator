@@ -11,8 +11,6 @@ import java.util.*
  */
 class StringsHitSaver(override val threshold: Float = 0.8F) : ISaver<StringsHit> {
 
-    override fun canHandle(result: Any): Boolean = result is StringsHit
-
     override fun save(book: ExcelBook, results: List<StringsHit>) {
         val len = results.size
         var thresholdIdx = len
