@@ -42,9 +42,9 @@ class StringsHit(override val left: Apk, override val right: Apk, private val va
 
 }
 
-class StringsHitComparator : IComparator<StringsHit> {
+class StringsHitComparator(threshold: Float = 0.8F) : IComparator<StringsHit> {
 
-    override val saver: ISaver<StringsHit> = StringsHitSaver()
+    override val saver: ISaver<StringsHit> = StringsHitSaver(threshold)
 
     override fun compare(left: Apk, right: Apk): StringsHit {
         return StringsHit(left, right)

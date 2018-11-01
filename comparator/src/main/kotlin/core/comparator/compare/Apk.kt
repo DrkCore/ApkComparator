@@ -2,8 +2,10 @@ package core.comparator.compare
 
 import brut.androlib.ApkDecoder
 import core.comparator.util.dumpDir
+import core.comparator.util.dumpFile
 import core.comparator.util.md5
 import java.io.File
+import java.io.FileFilter
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -13,20 +15,15 @@ import javax.xml.parsers.DocumentBuilderFactory
  */
 class Apk private constructor(val apk: File, val extraDir: File) {
 
-    var pkgName: String
-    val strings: Map<String, Set<String>>
-    val srcPaths: Set<String>
-
-    init {
-        //load pkg name
+    val pkgName: String by lazy {
         val doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder().parse(File(extraDir, "AndroidManifest.xml"))
         val nodeList = doc.getElementsByTagName("manifest")
         val node = nodeList.item(0)
-        pkgName = node.attributes.getNamedItem("package").nodeValue
-
-        //load res
-        strings = HashMap()
+        node.attributes.getNamedItem("package").nodeValue
+    }
+    val strings: Map<String, Set<String>> by lazy {
+        val strings = mutableMapOf<String, Set<String>>()
         val valDirs = File(extraDir, "res").listFiles { pathname -> pathname.isDirectory && pathname.name.startsWith(VALUES_PREFIX) }
         valDirs?.forEach {
             val xml = File(it, XML_NAME)
@@ -41,9 +38,10 @@ class Apk private constructor(val apk: File, val extraDir: File) {
                 strings[it.name] = lines
             }
         }
-
-        //load srcPaths
-        srcPaths = mutableSetOf()
+        strings
+    }
+    val srcPaths: Set<String> by lazy {
+        val srcPaths = mutableSetOf<String>()
         for (file in extraDir.listFiles()) {
             if (file.isDirectory && file.name.startsWith("smali")) {
                 for (dir in file.dumpDir()) {
@@ -52,6 +50,32 @@ class Apk private constructor(val apk: File, val extraDir: File) {
                 }
             }
         }
+        srcPaths
+    }
+    var selfConflictSum = mutableSetOf<String>()
+    val smaliDigest: Map<String, Set<String>> by lazy {
+        val smaliSums = mutableMapOf<String, Set<String>>()
+
+        for (item in extraDir.listFiles()) {
+            if (item.isDirectory && item.name.startsWith("smali")) {
+                item.dumpFile(FileFilter { file -> file.isFile && file.extension.toLowerCase() == "smali" }).forEach {
+                    val md5 = it.md5()
+                    val paths = smaliSums[md5]
+
+                    val path = it.absolutePath.substring(item.absolutePath.length + 1, it.absolutePath.length).replace(File.separator, ".")
+                    if (paths == null) {
+                        smaliSums[md5] = mutableSetOf(path)
+                    } else {
+                        val mutableSet: MutableSet<String> = paths as MutableSet<String>
+                        mutableSet.add(path)
+
+                        selfConflictSum.add(md5)
+                    }
+                }
+            }
+        }
+
+        smaliSums
     }
 
     private fun readStrings(xml: File): MutableSet<String> {

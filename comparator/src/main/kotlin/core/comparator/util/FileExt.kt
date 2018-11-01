@@ -19,6 +19,10 @@ fun File.dumpDir(allowHiddenDir: Boolean = false): List<File> {
     return dumpDir(this, filter = FileFilter { it.isDirectory && !it.isHidden && it != this })
 }
 
+fun File.dumpFile(filter: FileFilter? = null, allowHiddenDir: Boolean = false): List<File> {
+    return dumpFile(this, filter = filter, allowHiddenDir = false)
+}
+
 fun dumpFile(item: File, list: MutableList<File>? = null, filter: FileFilter? = null, allowHiddenDir: Boolean = false): List<File> {
     var result = list
     if (result == null) {

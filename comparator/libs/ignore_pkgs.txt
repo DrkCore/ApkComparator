@@ -1,0 +1,13 @@
+com.appsflyer
+com.google
+com.facebook
+io.fabric
+android.
+com.android
+com.applovin
+com.squareup
+com.flurry
+com.mopub
+okhttp3
+retrofit2
+org.apache

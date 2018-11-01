@@ -16,23 +16,9 @@ class SrcPathHit(override val left: Apk, override val right: Apk, val set: Set<S
 
 }
 
-class SrcPathHitComparator : IComparator<SrcPathHit> {
+class SrcPathHitComparator(threshold: Int = 1) : IComparator<SrcPathHit> {
 
-    override val saver: ISaver<SrcPathHit> = SrcPathsHitSaver()
-
-    companion object {
-        private val IGNORE_PKGS = arrayOf<String>(
-                "com.appsflyer",
-                "com.google",
-                "com.facebook",
-                "io.fabric",
-                "android.",
-                "com.android",
-                "com.applovin",
-                "com.squareup",
-                "com.flurry"
-        )
-    }
+    override val saver: ISaver<SrcPathHit> = SrcPathsHitSaver(threshold.toFloat())
 
     override fun compare(left: Apk, right: Apk): SrcPathHit {
         val tree = Tree<Boolean>()
@@ -47,19 +33,22 @@ class SrcPathHitComparator : IComparator<SrcPathHit> {
 
         for (srcPath in right.srcPaths) {
             var node: Node<Boolean>? = tree.root
-            for (s in srcPath.split(File.separator)) {
+            val array = srcPath.split(File.separator)
+            for (i in 0 until array.size) {
+                val s = array[i]
                 if (s.isNotEmpty()) {
                     val nextNode: Node<Boolean>? = node!!.getChild(s)
-                    if (nextNode != null) {
-                        node = nextNode
-
-                    } else {
+                    if (nextNode == null || i == array.size - 1) {
+                        var cursor: Node<Boolean>? = nextNode ?: node
                         // reach the last node in common
-                        while (node != null) {
-                            node.content = true
-                            node = node.parent
+                        while (cursor != null) {
+                            cursor.content = true
+                            cursor = cursor.parent
                         }
                         break
+
+                    } else {
+                        node = nextNode
                     }
                 }
             }
@@ -88,10 +77,8 @@ class SrcPathHitComparator : IComparator<SrcPathHit> {
             val path = node.getFullPath(".")
 
             if (path.contains(".")) {
-                for (ignore in IGNORE_PKGS) {
-                    if (path.startsWith(ignore)) {
-                        continue@nodeLoop
-                    }
+                if (path.startsWithIgnoredPkg()) {
+                    continue@nodeLoop
                 }
 
                 if (path.startsWith("com") || path.startsWith("org") && path.length >= 5) {
