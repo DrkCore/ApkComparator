@@ -1,6 +1,7 @@
 package core.comparator.compare
 
 import core.comparator.saver.ISaver
+import core.comparator.util.forPair
 
 /**
  * @author core
@@ -21,11 +22,8 @@ interface IComparator<T : Weightable> {
         }
 
         val results = mutableListOf<T>()
-        for (i in 0 until len) {
-            val left = apks[i]
-            for (j in i + 1 until len) {
-                results.add(compare(left, apks[j]))
-            }
+        forPair(apks).forEach {
+            results.add(compare(it.first, it.second))
         }
 
         results.sortByDescending { t -> t.getWeight() }

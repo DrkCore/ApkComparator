@@ -1,5 +1,6 @@
 package core.comparator.compare
 
+import core.comparator.compare.IDepthLimit.Companion.DEFAULT_DEPTH
 import core.comparator.saver.ISaver
 import core.comparator.saver.SrcPathsHitSaver
 import core.comparator.util.Node
@@ -16,7 +17,9 @@ class SrcPathHit(override val left: Apk, override val right: Apk, val set: Set<S
 
 }
 
-class SrcPathHitComparator(threshold: Int = 1) : IComparator<SrcPathHit> {
+class SrcPathHitComparator(threshold: Int = 1) : IComparator<SrcPathHit>, IDepthLimit {
+
+    override var depth: Int = DEFAULT_DEPTH
 
     override val saver: ISaver<SrcPathHit> = SrcPathsHitSaver(threshold.toFloat())
 

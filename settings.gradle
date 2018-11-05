@@ -1,1 +1,1 @@
-include ':compare'
+include ':comparator'

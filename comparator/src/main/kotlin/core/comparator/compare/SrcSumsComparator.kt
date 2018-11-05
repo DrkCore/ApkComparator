@@ -15,7 +15,10 @@ class SrcSumsHit(override val left: Apk, override val right: Apk, val hit: Map<S
 
 }
 
-class SrcSumsComparator(threshold: Int = 1) : IComparator<SrcSumsHit> {
+class SrcSumsComparator(threshold: Int = 1) : IComparator<SrcSumsHit>, IDepthLimit {
+
+    override var depth: Int = IDepthLimit.DEFAULT_DEPTH
+
     override val saver: ISaver<SrcSumsHit> = SrcSumsHitSaver(threshold.toFloat())
 
     override fun compare(left: Apk, right: Apk): SrcSumsHit {

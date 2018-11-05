@@ -115,14 +115,23 @@ class Apk private constructor(val apk: File, val extraDir: File) {
             return apks
         }
 
-        private val IGNORED_APK = File("libs/core.ignore.apk")
+        private val IGNORED_APK = File("lib/core.ignore.apk")
         private var ignoredApk: Apk? = null
 
-        fun from(apk: File, outDir: File): Apk {
+        private val CACHE = mutableMapOf<String, Apk>()
+
+        fun from(file: File, outDir: File): Apk {
             if (ignoredApk == null) {
                 ignoredApk = decode(IGNORED_APK, outDir)
             }
-            return decode(apk, outDir)
+
+            var apk = CACHE[file.absolutePath]
+            if (apk == null) {
+                apk = decode(file, outDir)
+                CACHE[file.absolutePath] = apk
+            }
+
+            return apk
         }
 
         private fun decode(apk: File, outDir: File): Apk {

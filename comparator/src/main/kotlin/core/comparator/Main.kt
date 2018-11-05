@@ -1,5 +1,6 @@
 package core.comparator
 
 fun main(args: Array<String>) {
-    print("Hello World!")
+    val ctrl = Controller()
+    ctrl.main(args)
 }
