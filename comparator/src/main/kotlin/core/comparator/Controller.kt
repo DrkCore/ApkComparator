@@ -24,8 +24,6 @@ class Controller(comparators: List<IComparator<out Weightable>>? = null) {
     companion object {
         const val XLS_NAME = "compared_result"
         const val XLS_EXT = "xls"
-
-        const val IGNORE_APK = "core.ignore.apk"
     }
 
     fun process(files: Array<File>, outDir: File, merge: Boolean = false) {
@@ -38,11 +36,8 @@ class Controller(comparators: List<IComparator<out Weightable>>? = null) {
             val book = ExcelBook(File(outDir, "${XLS_NAME}.${XLS_EXT}"))
             for (comparator in comparators) {
                 val results: List<Weightable> = comparator.compareAll(apks = apks)
-                if (results.isNotEmpty()) {
-                    @Suppress("UNCHECKED_CAST")
-                    comparator.saver.save(book, results as List<Nothing>)
-                    break
-                }
+                @Suppress("UNCHECKED_CAST")
+                comparator.saver.save(book, results as List<Nothing>)
             }
             book.close()
         } else {
@@ -50,11 +45,8 @@ class Controller(comparators: List<IComparator<out Weightable>>? = null) {
                 val book = ExcelBook(File(outDir, "${pair.first.pkgName} x ${pair.second.pkgName}.${XLS_EXT}"))
                 for (comparator in comparators) {
                     val results: List<Weightable> = comparator.compareAll(listOf(pair.first, pair.second))
-                    if (results.isNotEmpty()) {
-                        @Suppress("UNCHECKED_CAST")
-                        comparator.saver.save(book, results as List<Nothing>)
-                        break
-                    }
+                    @Suppress("UNCHECKED_CAST")
+                    comparator.saver.save(book, results as List<Nothing>)
                 }
                 book.close()
             }
@@ -150,6 +142,9 @@ class Controller(comparators: List<IComparator<out Weightable>>? = null) {
         }
 
         process(apks, outputDir, merge)
+        println()
+        println("======================================================")
+        println("Processing finished, you can find result file under ${outputDir}")
     }
 
 }
