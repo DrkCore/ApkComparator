@@ -25,7 +25,7 @@ class StringsHitSaver(override val threshold: Float = 0.8F) : ISaver<StringsHit>
 
         saveGroup(hit, book.newSheet("StringsHit-Group"))
         saveMatrix(results, book.newSheet("StringsHit-Matrix"))
-        saveHitString(hit, book.newSheet("StringsHit-Strings"))
+        saveHitString(results, book.newSheet("StringsHit-Strings"))
     }
 
     companion object {
